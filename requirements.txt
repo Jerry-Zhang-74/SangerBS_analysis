@@ -1,4 +1,5 @@
-streamlit, 
-pandas, 
-plotly, 
+streamlit
+pandas
+numpy
+plotly
 snapgene_reader
