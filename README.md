@@ -1,43 +1,43 @@
-# SangerBS-Analysis：Sanger 亚硫酸氢盐测序自动化分析工具
+# SangerBS-Analysis: Automated Analysis Tool for Sanger Bisulfite Sequencing
 
-### 项目简介
-本工具是专为分析亚硫酸氢盐测序（Bisulfite Sequencing, BS）得到的 Sanger 测序数据（.ab1 格式）而开发的自动化分析软件。它旨在解决手动分析 BS 测序数据时存在的效率低、易出错、难以处理反向测序及移码对齐等问题。通过物理平移比对算法与局部像素级寻峰技术，本工具可自动提取目标 CpG 位点的甲基化百分比并生成标准化分析报告。
+### Project Overview
+SangerBS-Analysis is an automated software tool designed to analyze Sanger sequencing data (.ab1 format) derived from Bisulfite Sequencing (BS). It addresses the common pain points in manual BS-Seq analysis, such as low efficiency, high error rates, and difficulties in handling reverse sequencing or alignment shifts. By utilizing a physical sliding alignment algorithm and local pixel-level peak detection, the tool automatically extracts methylation percentages for target CpG sites and generates standardized analysis reports.
 
-### 核心功能
-1.  **自动化序列对齐**：采用 3-Letter 降维平移算法，自动将 BS 处理后的低复杂度测序序列与参考序列（野生型或模拟转换序列）进行精准对齐。
-2.  **方向自动识别**：支持自动探测测序引物方向（正向或反向测序），无需人工干预即可正确映射坐标。
-3.  **抗移码修正**：针对 BS 测序常见的聚合物打滑（Indel）现象，采用局部微调对齐，确保每一个 CpG 位点的峰值提取均在正确的物理坐标上。
-4.  **甲基化定量分析**：通过提取校准后的 C 峰与 T 峰荧光强度，计算 `C / (C + T)` 的占比，实现单碱基分辨率的甲基化定量。
-5.  **实验质控（QC）**：自动计算非 CpG 位点的胞嘧啶转化率，评估亚硫酸氢盐处理实验的可靠性。
+### Core Functions
+1.  **Automated Sequence Alignment**: Implements a 3-Letter reduction algorithm to precisely align low-complexity bisulfite-converted sequences with reference genomes (either wild-type or simulated-converted).
+2.  **Direction Recognition**: Automatically detects the orientation of the sequencing primers (Forward or Reverse) and maps coordinates accordingly without manual intervention.
+3.  **Indel Correction**: Addresses polymer slips (Indels) common in BS sequencing via local fine-tuning alignment, ensuring peak extraction occurs at the correct physical coordinates for every CpG site.
+4.  **Methylation Quantitation**: Calculates single-base resolution methylation levels by extracting calibrated fluorescence intensities of Cytosine (C) and Thymine (T) peaks using the formula `C / (C + T)`.
+5.  **Experimental Quality Control (QC)**: Automatically calculates the conversion rate of non-CpG cytosines to assess the reliability of the bisulfite treatment.
 
-### 输入要求
-运行该程序需要准备以下两类文件：
-* **参考序列文件**（1个）：
-    * 格式支持：`.dna` (SnapGene)、`.fasta`、`.fa` 或 `.txt`。
-    * 内容：建议提供原始野生型（未处理）序列，程序将自动识别其中的 CpG 位点。
-* **测序数据文件**（1个或多个）：
-    * 格式：`.ab1`。
-    * 内容：由测序公司提供的原始荧光痕迹文件。
+### Input Requirements
+To run the analysis, the following two types of files are required:
+* **Reference Sequence File** (1 file):
+    * Supported formats: `.dna` (SnapGene), `.fasta`, `.fa`, or `.txt`.
+    * Content: Providing the original wild-type (unconverted) sequence is recommended, as the program will automatically identify internal CpG sites.
+* **Sequencing Data Files** (One or more):
+    * Format: `.ab1`.
+    * Content: Original trace files provided by sequencing service providers.
 
-### 输出结果
-分析完成后，用户可获得以下三类文件：
-1.  **Aligned_Matrix.csv（对齐结果矩阵）**：
-    * 以 CpG 位点为行，样本名为列的标准化表格。直接展示每个位点在各样本中的甲基化百分比，方便后续导入 GraphPad Prism 等软件进行统计。
-2.  **Details.csv（分析明细）**：
-    * 包含每个位点的具体参考坐标、峰值高度及详细原始数据，用于数据回溯和核对。
-3.  **Methylation_Plot.html（交互式折线图）**：
-    * 可视化的甲基化图谱，支持缩放、查看具体位点数值，直观呈现不同组别之间的甲基化趋势差异。
+### Output Results
+Upon completion, the tool generates three types of output:
+1.  **Aligned_Matrix.csv (Alignment Matrix)**:
+    * A standardized table with CpG sites as rows and sample names as columns. It displays the methylation percentage for each site, ready for import into statistical software like GraphPad Prism.
+2.  **Details.csv (Analysis Details)**:
+    * Contains specific reference coordinates, peak heights, and raw data for every site, facilitating data traceability and verification.
+3.  **Methylation_Plot.html (Interactive Chart)**:
+    * A visualized methylation map supporting zoom functions and hover-data. It provides an intuitive comparison of methylation trends across different experimental groups.
 
-### 技术实现
-* **开发语言**：Python
-* **核心库**：Pandas (数据处理), Numpy (数值计算), Plotly (可视化), CustomTkinter / Streamlit (界面交互)。
-* **算法逻辑**：基于物理距离的滑动窗口比对，结合 Sanger 测序 DATA 通道信号提取。
+### Technical Implementation
+* **Language**: Python
+* **Core Libraries**: Pandas (Data Processing), Numpy (Numerical Calculation), Plotly (Visualization), CustomTkinter / Streamlit (UI Interaction).
+* **Algorithm Logic**: Sliding window alignment based on physical distance combined with Sanger DATA channel signal extraction.
 
 ---
 
-### 使用说明
-1.  运行程序，在侧边栏上传您的参考序列（.dna 或 .fasta）。
-2.  批量选择并上传需要分析的 .ab1 测序文件。
-3.  根据需要调整“信号最低阈值”或“前端忽略碱基数”。
-4.  点击“开始分析”，系统将自动完成对齐并在页面下方展示分析矩阵及甲基化趋势图。
-5.  点击下载按钮，保存生成的 CSV 结果文件。
+### Instructions for Use
+1.  Launch the application and upload your reference sequence (.dna or .fasta) in the sidebar.
+2.  Batch select and upload the .ab1 sequencing files to be analyzed.
+3.  Adjust parameters such as "Minimum Signal Threshold" or "Trim Start" if necessary.
+4.  Click "Run Analysis." The system will automatically perform alignment and display the results matrix and methylation trends.
+5.  Click the download buttons to save the generated CSV files.
